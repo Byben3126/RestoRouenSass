@@ -11,7 +11,7 @@ interface PlanCardProps {
 }
 
 export function PlanCard({ plan, selected, onSelect }: PlanCardProps) {
-  const isEnterprise = plan.id === "enterprise";
+  const isEnterprise = (plan.id as string) === "enterprise";
 
   return (
     <button
