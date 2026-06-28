@@ -1,7 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
+import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
-import { ImagePlus, Mail, Hash, FileText, ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2, MapPin } from "lucide-react";
 
 import {
   FormControl,
@@ -12,149 +14,94 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import type { LatLng } from "@/components/map/center-pin-map";
 
-import { ESTABLISHMENT_TYPES } from "./onboarding.constants";
-import { TypePill } from "./type-pill";
 import type { OnboardingValues } from "./onboarding.schema";
+
+const CenterPinMap = dynamic(() => import("@/components/map/center-pin-map"), { ssr: false });
+
+const DEFAULT_POSITION: LatLng = { lat: 49.4432, lng: 1.0993 };
 
 interface CompanyStepProps {
   form: UseFormReturn<OnboardingValues>;
   onNext: () => void;
+  isLoading?: boolean;
 }
 
-export function CompanyStep({ form, onNext }: CompanyStepProps) {
+export function CompanyStep({ form, onNext, isLoading }: CompanyStepProps) {
+  const [position, setPosition] = useState<LatLng>(DEFAULT_POSITION);
+
+  function handlePositionChange(pos: LatLng) {
+    setPosition(pos);
+    form.setValue("latitude", pos.lat, { shouldValidate: true });
+    form.setValue("longitude", pos.lng, { shouldValidate: true });
+  }
+
   return (
     <div className="mx-auto w-full max-w-lg flex-1 px-6 py-16 space-y-10">
 
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Créez votre espace</h1>
         <p className="text-muted-foreground">
-          Donnez un nom à votre établissement et choisissez son secteur.
+          Donnez un nom à votre restaurant et positionnez-le sur la carte.
         </p>
       </div>
 
       <div className="space-y-8">
 
-        {/* Logo + Nom */}
-        <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 shrink-0 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-muted-foreground/25 bg-muted/20 transition-all hover:border-foreground/40 hover:bg-muted/40 group">
-            <ImagePlus className="h-5 w-5 text-muted-foreground/40 transition-all group-hover:text-foreground/60 group-hover:scale-110" />
-          </div>
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormLabel className="text-xs text-muted-foreground uppercase tracking-wider">
-                  Nom de l'établissement
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Le Petit Bistrot, Groupe Saveurs…"
-                    {...field}
-                    className="text-base h-11"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Email + SIRET */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-1.5 text-xs text-muted-foreground uppercase tracking-wider">
-                  <Mail className="h-3.5 w-3.5" />
-                  Email
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="direction@entreprise.com" type="email" {...field} className="h-11" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="siret"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-1.5 text-xs text-muted-foreground uppercase tracking-wider">
-                  <Hash className="h-3.5 w-3.5" />
-                  SIRET
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="123 456 789 00012" {...field} className="h-11" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Description */}
+        {/* Nom */}
         <FormField
           control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-1.5 text-xs text-muted-foreground uppercase tracking-wider">
-                <FileText className="h-3.5 w-3.5" />
-                Description
-              </FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Décrivez brièvement votre établissement…"
-                  className="resize-none h-24"
-                  {...field}
-                />
-              </FormControl>
-              <div className="flex justify-end">
-                <span className="text-xs text-muted-foreground">
-                  {(field.value ?? "").length}/300
-                </span>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Type */}
-        <FormField
-          control={form.control}
-          name="type"
+          name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-xs text-muted-foreground uppercase tracking-wider">
-                Secteur d'activité
+                Nom du restaurant
               </FormLabel>
               <FormControl>
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {ESTABLISHMENT_TYPES.map((type) => (
-                    <TypePill
-                      key={type.value}
-                      type={type}
-                      selected={field.value === type.value}
-                      onSelect={() => field.onChange(type.value)}
-                    />
-                  ))}
-                </div>
+                <Input
+                  placeholder="Le Petit Bistrot…"
+                  {...field}
+                  className="text-base h-11"
+                  autoFocus
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Carte */}
+        <div className="space-y-2">
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground uppercase tracking-wider">
+            <MapPin className="h-3.5 w-3.5" />
+            Localisation
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Déplacez la carte pour positionner l'épingle sur votre restaurant.
+          </p>
+          <div className="rounded-xl overflow-hidden border h-72">
+            <CenterPinMap
+              initialPosition={position}
+              onPositionChange={handlePositionChange}
+            />
+          </div>
+          {form.formState.errors.latitude && (
+            <p className="text-xs text-destructive">{form.formState.errors.latitude.message}</p>
+          )}
+        </div>
+
       </div>
 
-      <Button type="button" onClick={onNext} size="lg" className="w-full gap-2">
-        Choisir mon plan
-        <ArrowRight className="h-4 w-4" />
+      <Button type="button" onClick={onNext} size="lg" className="w-full gap-2" disabled={isLoading}>
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <>
+            Choisir mon plan
+            <ArrowRight className="h-4 w-4" />
+          </>
+        )}
       </Button>
 
     </div>

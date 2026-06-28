@@ -1,7 +1,7 @@
 "use client";
 
 import { UseFormReturn } from "react-hook-form";
-import { ChevronLeft, ChevronRight, Shield, Check, Headphones } from "lucide-react";
+import { ChevronLeft, ChevronRight, Shield, Check, Headphones, Loader2 } from "lucide-react";
 
 import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -15,9 +15,10 @@ interface PlanStepProps {
   companyName: string;
   onBack: () => void;
   onNext: () => void;
+  isLoading?: boolean;
 }
 
-export function PlanStep({ form, companyName, onBack, onNext }: PlanStepProps) {
+export function PlanStep({ form, companyName, onBack, onNext, isLoading }: PlanStepProps) {
   const watchedPlan = form.watch("plan");
 
   return (
@@ -39,7 +40,7 @@ export function PlanStep({ form, companyName, onBack, onNext }: PlanStepProps) {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 items-start">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 items-start">
                   {PLANS.map((plan) => (
                     <PlanCard
                       key={plan.id}
@@ -79,12 +80,18 @@ export function PlanStep({ form, companyName, onBack, onNext }: PlanStepProps) {
           <Button
             type="button"
             onClick={onNext}
-            disabled={!watchedPlan}
+            disabled={!watchedPlan || isLoading}
             size="lg"
             className="gap-2 min-w-52"
           >
-            Renseigner le paiement
-            <ChevronRight className="h-4 w-4" />
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                Renseigner le paiement
+                <ChevronRight className="h-4 w-4" />
+              </>
+            )}
           </Button>
         </div>
 

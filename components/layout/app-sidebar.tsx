@@ -6,7 +6,6 @@ import {
   IconHelp,
   IconInnerShadowTop,
   IconToolsKitchen2,
-  IconSettings,
   IconUserHeart,
   IconGift,
   IconTag,
@@ -28,47 +27,37 @@ import {
 } from "@/components/ui/sidebar"
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Accueil",
-      url: "/dashboard/{workspaceId}/home",
+      url: "/dashboard/home",
       icon: IconLayoutDashboard,
     },
     {
       title: "Clients",
-      url: "/dashboard/{workspaceId}/customers",
+      url: "/dashboard/customers",
       icon: IconUserHeart,
     },
 {
       title: "Restaurant",
-      url: "/dashboard/{workspaceId}/restaurant",
+      url: "/dashboard/restaurant",
       icon: IconToolsKitchen2,
     },
     {
       title: "Récompenses",
-      url: "/dashboard/{workspaceId}/rewards",
+      url: "/dashboard/rewards",
       icon: IconGift,
     },
     {
       title: "Promotions",
-      url: "/dashboard/{workspaceId}/promotions",
+      url: "/dashboard/promotions",
       icon: IconTag,
     },
   ],
 
   navSecondary: [
     {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
+      title: "Aide",
       url: "#",
       icon: IconHelp,
     },
@@ -98,7 +87,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   )

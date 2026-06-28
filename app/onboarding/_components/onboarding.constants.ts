@@ -59,23 +59,23 @@ export const PLANS = [
     ],
     highlight: false,
   },
-  {
-    id: "enterprise",
-    name: "Enterprise",
-    price: null,
-    billingNote: "tarification personnalisée",
-    workers: Infinity,
-    locations: Infinity,
-    features: [
-      "Employés & sites illimités",
-      "IA de génération de planning",
-      "Intégrations sur mesure",
-      "SSO / SAML",
-      "Account manager dédié",
-      "SLA contractuel",
-    ],
-    highlight: false,
-  },
+  // {
+  //   id: "enterprise",
+  //   name: "Enterprise",
+  //   price: null,
+  //   billingNote: "tarification personnalisée",
+  //   workers: Infinity,
+  //   locations: Infinity,
+  //   features: [
+  //     "Employés & sites illimités",
+  //     "IA de génération de planning",
+  //     "Intégrations sur mesure",
+  //     "SSO / SAML",
+  //     "Account manager dédié",
+  //     "SLA contractuel",
+  //   ],
+  //   highlight: false,
+  // },
 ] as const;
 
 export type Plan = (typeof PLANS)[number];
