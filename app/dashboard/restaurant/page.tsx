@@ -241,9 +241,7 @@ export default function RestaurantPage() {
           ),
         );
         mediaIds = resolved;
-        setGalleryItems((prev) => prev.map((item) =>
-          item.type === 'existing' ? item : { ...item, type: 'existing' as const }
-        ));
+        setGalleryItems((prev) => prev.filter((item) => item.type === 'existing'));
       }
 
       const updated = await updateRestaurant({ name, latitude: position.lat, longitude: position.lng, mediaIds });
