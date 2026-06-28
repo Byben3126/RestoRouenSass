@@ -35,8 +35,8 @@ export default function OnboardingPage() {
     if (me?.isRestaurantOwner) {
       if (restaurant) {
         form.setValue("name", restaurant.name ?? "");
-        form.setValue("latitude", restaurant.latitude ?? undefined);
-        form.setValue("longitude", restaurant.longitude ?? undefined);
+        if (restaurant.latitude !== undefined) form.setValue("latitude", restaurant.latitude);
+        if (restaurant.longitude !== undefined) form.setValue("longitude", restaurant.longitude);
       }
       setStep(2);
     } else {
