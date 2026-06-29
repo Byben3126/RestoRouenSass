@@ -10,7 +10,7 @@ const ACTIVE_STATUSES = ["active", "trialing"];
 
 export function DashboardGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { data: me, isLoading: meLoading } = useMe();
+  const { data: me, isLoading: meLoading, isError: meError } = useMe();
   const { data: subscription, isLoading: subLoading } = useMySubscription();
 
   const isLoading = meLoading || subLoading;
@@ -19,10 +19,14 @@ export function DashboardGuard({ children }: { children: React.ReactNode }) {
   const isAuthorized = hasRestaurant && hasActiveSub;
 
   useEffect(() => {
+    if (meError) {
+      router.replace("/auth/register");
+      return;
+    }
     if (!isLoading && !isAuthorized) {
       router.replace("/onboarding");
     }
-  }, [isLoading, isAuthorized, router]);
+  }, [isLoading, isAuthorized, meError, router]);
 
   if (isLoading || !isAuthorized) return null;
 
