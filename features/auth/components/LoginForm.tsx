@@ -48,6 +48,8 @@ export function LoginForm({
     });
     if (error) {
       setError(error.message || "Identifiants incorrects");
+    } else {
+      router.push("/dashboard")
     }
   }
 
