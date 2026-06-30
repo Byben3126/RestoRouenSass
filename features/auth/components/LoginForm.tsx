@@ -48,10 +48,13 @@ export function LoginForm({
     });
     if (error) {
       setError(error.message || "Identifiants incorrects");
-    } else if (data?.user?.role === 'admin') {
-      window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/admin`;
     } else {
-      router.push("/dashboard")
+      const role = (data?.user as { role?: string } | undefined)?.role
+      if (role === 'admin') {
+        window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/admin`
+      } else {
+        router.push("/dashboard")
+      }
     }
   }
 
