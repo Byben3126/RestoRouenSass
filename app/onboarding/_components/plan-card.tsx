@@ -11,7 +11,8 @@ interface PlanCardProps {
 }
 
 export function PlanCard({ plan, selected, onSelect }: PlanCardProps) {
-  const isEnterprise = (plan.id as string) === "enterprise";
+  const isCustomPricing = plan.price === null;
+  const isFree = plan.price === 0;
 
   return (
     <button
@@ -41,8 +42,10 @@ export function PlanCard({ plan, selected, onSelect }: PlanCardProps) {
         )}>
           {plan.name}
         </p>
-        {isEnterprise ? (
+        {isCustomPricing ? (
           <p className="text-2xl font-bold">Sur devis</p>
+        ) : isFree ? (
+          <p className="text-2xl font-bold">Gratuit</p>
         ) : (
           <div className="flex items-baseline gap-1">
             <span className="text-3xl font-bold">{plan.price}€</span>

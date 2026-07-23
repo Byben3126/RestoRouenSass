@@ -18,7 +18,14 @@ import {
   PaginationPrevious,
   PaginationNext,
 } from "@/components/ui/pagination";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useCustomers } from "@/features/customers/hooks";
+import { PromotionSheet } from "@/features/promotions/components/promotion-sheet";
 import type { components } from "@/types/api.generated";
 
 type CustomerDto = components["schemas"]["CustomerDto"];
@@ -75,6 +82,8 @@ export default function CustomersPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [promoTarget, setPromoTarget] = useState<CustomerDto | undefined>();
+  const [promoSheetOpen, setPromoSheetOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 400);
@@ -106,6 +115,12 @@ export default function CustomersPage() {
 
   return (
     <div className="space-y-4">
+
+      <PromotionSheet
+        open={promoSheetOpen}
+        onClose={() => setPromoSheetOpen(false)}
+        initialTargetCustomer={promoTarget}
+      />
 
       {/* Header */}
       <div>
@@ -236,9 +251,20 @@ export default function CustomersPage() {
                 </TableCell>
 
                 <TableCell>
-                  <Button variant="ghost" size="icon" className="h-7 w-7">
-                    <MoreHorizontal className="h-3.5 w-3.5" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-7 w-7">
+                        <MoreHorizontal className="h-3.5 w-3.5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => { setPromoTarget(customer); setPromoSheetOpen(true); }}
+                      >
+                        Envoyer une promotion
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
 
               </TableRow>
