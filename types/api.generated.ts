@@ -84,6 +84,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/subscription/portal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SubscriptionController_createPortalSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/subscription/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SubscriptionController_createCheckout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/webhook/stripe": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["WebhookController_handleStripeWebhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/customers": {
         parameters: {
             query?: never;
@@ -94,6 +142,22 @@ export interface paths {
         get: operations["CustomerController_getRestaurantCustomers"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customers/{id}/points": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CustomerController_addPoints"];
         delete?: never;
         options?: never;
         head?: never;
@@ -284,13 +348,12 @@ export interface components {
             isActive: boolean;
             isRestaurantOwner: boolean;
             stripeCustomerId?: string;
+            role?: string;
         };
         CreateRestaurantDto: {
             name: string;
             latitude: number;
             longitude: number;
-            /** @enum {string} */
-            plan: "starter" | "growth" | "pro";
         };
         MediaDto: {
             id: string;
@@ -340,6 +403,10 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
         };
+        CreateCheckoutDto: {
+            /** @enum {string} */
+            plan: "starter" | "growth" | "pro";
+        };
         CustomerDto: {
             id: string;
             points: number;
@@ -359,6 +426,10 @@ export interface components {
             total: number;
             page: number;
             limit: number;
+        };
+        AddCustomerPointsDto: {
+            amount: number;
+            reason?: string;
         };
         RewardDto: {
             id: string;
@@ -561,6 +632,63 @@ export interface operations {
             };
         };
     };
+    SubscriptionController_createPortalSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SubscriptionController_createCheckout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCheckoutDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WebhookController_handleStripeWebhook: {
+        parameters: {
+            query?: never;
+            header: {
+                "stripe-signature": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     CustomerController_getRestaurantCustomers: {
         parameters: {
             query?: {
@@ -582,6 +710,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaginatedCustomersDto"];
+                };
+            };
+        };
+    };
+    CustomerController_addPoints: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddCustomerPointsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerDto"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
                 };
             };
         };

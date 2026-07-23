@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCustomers } from "@/features/customers/hooks";
+import { AddPointsSheet } from "@/features/customers/components/add-points-sheet";
 import { PromotionSheet } from "@/features/promotions/components/promotion-sheet";
 import type { components } from "@/types/api.generated";
 
@@ -84,6 +85,8 @@ export default function CustomersPage() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [promoTarget, setPromoTarget] = useState<CustomerDto | undefined>();
   const [promoSheetOpen, setPromoSheetOpen] = useState(false);
+  const [pointsTarget, setPointsTarget] = useState<CustomerDto | undefined>();
+  const [pointsSheetOpen, setPointsSheetOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 400);
@@ -120,6 +123,12 @@ export default function CustomersPage() {
         open={promoSheetOpen}
         onClose={() => setPromoSheetOpen(false)}
         initialTargetCustomer={promoTarget}
+      />
+
+      <AddPointsSheet
+        open={pointsSheetOpen}
+        onClose={() => setPointsSheetOpen(false)}
+        customer={pointsTarget}
       />
 
       {/* Header */}
@@ -262,6 +271,11 @@ export default function CustomersPage() {
                         onClick={() => { setPromoTarget(customer); setPromoSheetOpen(true); }}
                       >
                         Envoyer une promotion
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => { setPointsTarget(customer); setPointsSheetOpen(true); }}
+                      >
+                        Ajouter des points
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
