@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useCustomers } from "@/features/customers/hooks";
 import { AddPointsSheet } from "@/features/customers/components/add-points-sheet";
+import { CustomerDetailSheet } from "@/features/customers/components/customer-detail-sheet";
 import { PromotionSheet } from "@/features/promotions/components/promotion-sheet";
 import type { components } from "@/types/api.generated";
 
@@ -87,6 +88,8 @@ export default function CustomersPage() {
   const [promoSheetOpen, setPromoSheetOpen] = useState(false);
   const [pointsTarget, setPointsTarget] = useState<CustomerDto | undefined>();
   const [pointsSheetOpen, setPointsSheetOpen] = useState(false);
+  const [detailTarget, setDetailTarget] = useState<CustomerDto | undefined>();
+  const [detailSheetOpen, setDetailSheetOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(search), 400);
@@ -131,6 +134,12 @@ export default function CustomersPage() {
         customer={pointsTarget}
       />
 
+      <CustomerDetailSheet
+        open={detailSheetOpen}
+        onClose={() => setDetailSheetOpen(false)}
+        customer={detailTarget}
+      />
+
       {/* Header */}
       <div>
         <h1 className="text-xl font-semibold">Clients</h1>
@@ -161,7 +170,7 @@ export default function CustomersPage() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
-            placeholder="Rechercher…"
+            placeholder="Nom, email ou code…"
             className="pl-8 h-8 text-sm w-56"
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
@@ -267,6 +276,11 @@ export default function CustomersPage() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => { setDetailTarget(customer); setDetailSheetOpen(true); }}
+                      >
+                        Voir le détail
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => { setPromoTarget(customer); setPromoSheetOpen(true); }}
                       >

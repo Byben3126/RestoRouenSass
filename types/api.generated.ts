@@ -164,6 +164,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/customers/{id}/points-transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CustomerController_getPointsTransactions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/rewards": {
         parameters: {
             query?: never;
@@ -430,6 +446,13 @@ export interface components {
         AddCustomerPointsDto: {
             amount: number;
             reason?: string;
+        };
+        PointsTransactionDto: {
+            id: string;
+            amount: number;
+            reason?: string;
+            /** Format: date-time */
+            createdAt: string;
         };
         RewardDto: {
             id: string;
@@ -743,6 +766,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    CustomerController_getPointsTransactions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PointsTransactionDto"][];
                 };
             };
         };
