@@ -1,23 +1,17 @@
 "use client";
 
-import { BadgeCheck, CreditCard, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMe } from "@/features/user/hooks";
 import { useMySubscription, useCreatePortalSession } from "@/features/subscription/hooks";
 
-// ─── helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const PLAN_LABELS: Record<string, string> = {
   starter: "Starter",
@@ -36,22 +30,34 @@ const STATUS_LABELS: Record<string, string> = {
   paused: "En pause",
 };
 
-function statusVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
-  if (status === "active" || status === "trialing") return "default";
-  if (status === "canceled" || status === "incomplete_expired") return "destructive";
-  return "secondary";
-}
-
 function formatDate(iso?: string) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 }
 
-// ─── page ─────────────────────────────────────────────────────────────────────
+function initials(firstName?: string, lastName?: string): string {
+  return `${firstName?.[0] ?? ""}${lastName?.[0] ?? ""}`.toUpperCase() || "?";
+}
+
+// ─── Section ─────────────────────────────────────────────────────────────────
+
+function Section({ title, description, children }: {
+  title: string; description?: string; children: React.ReactNode;
+}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <p className="text-sm font-medium">{title}</p>
+        {description && (
+          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{description}</p>
+        )}
+      </div>
+      <div className="md:col-span-2 space-y-4">{children}</div>
+    </div>
+  );
+}
+
+// ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function AccountPage() {
   const { data: me, isLoading: meLoading } = useMe();
@@ -67,7 +73,7 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="space-y-6 pb-2 max-w-2xl">
+    <div className="space-y-8 pb-12 max-w-3xl">
       <div>
         <h1 className="text-xl font-semibold">Mon compte</h1>
         <p className="text-sm text-muted-foreground">
@@ -75,99 +81,75 @@ export default function AccountPage() {
         </p>
       </div>
 
-      {/* Profile card */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <BadgeCheck className="h-4 w-4 text-muted-foreground" />
-            <CardTitle className="text-base">Profil</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {meLoading ? (
-            <>
-              <Skeleton className="h-4 w-48" />
-              <Skeleton className="h-4 w-64" />
-            </>
-          ) : (
-            <>
-              <Row label="Prénom" value={me?.firstName ?? "—"} />
-              <Separator />
-              <Row label="Nom" value={me?.lastName ?? "—"} />
-              <Separator />
-              <Row label="Email" value={me?.email ?? "—"} />
-            </>
-          )}
-        </CardContent>
-      </Card>
+      <Separator />
 
-      {/* Subscription card */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
-              <CardTitle className="text-base">Abonnement</CardTitle>
+      {/* Profil */}
+      <Section title="Profil" description="Vos informations personnelles.">
+        {meLoading ? (
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-12 w-12 rounded-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-48" />
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePortal}
-              disabled={portalMutation.isPending}
-            >
-              <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
-              Gérer mon abonnement
-            </Button>
           </div>
-          <CardDescription>
-            Facturation, changement de plan et historique des paiements via Stripe.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {subLoading ? (
-            <>
-              <Skeleton className="h-4 w-40" />
-              <Skeleton className="h-4 w-56" />
-            </>
-          ) : subscription ? (
-            <>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Plan</span>
-                <span className="text-sm font-medium">
-                  {PLAN_LABELS[subscription.plan] ?? subscription.plan}
-                </span>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Statut</span>
-                <Badge variant={statusVariant(subscription.status)}>
-                  {STATUS_LABELS[subscription.status] ?? subscription.status}
-                </Badge>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Prochain renouvellement</span>
-                <span className="text-sm font-medium">
-                  {subscription.cancelAtPeriodEnd
-                    ? `Annulé le ${formatDate(subscription.currentPeriodEnd)}`
-                    : formatDate(subscription.currentPeriodEnd)}
-                </span>
-              </div>
-            </>
-          ) : (
-            <p className="text-sm text-muted-foreground">Aucun abonnement actif.</p>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+        ) : (
+          <div className="flex items-center gap-3">
+            <Avatar className="h-12 w-12">
+              <AvatarFallback className="text-sm font-semibold bg-muted">
+                {initials(me?.firstName, me?.lastName)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="font-medium truncate">
+                {[me?.firstName, me?.lastName].filter(Boolean).join(" ") || "—"}
+              </p>
+              <p className="text-sm text-muted-foreground truncate">{me?.email ?? "—"}</p>
+            </div>
+          </div>
+        )}
+      </Section>
 
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium">{value}</span>
+      <Separator />
+
+      {/* Abonnement */}
+      <Section
+        title="Abonnement"
+        description="Facturation, changement de plan et historique des paiements via Stripe."
+      >
+        {subLoading ? (
+          <Skeleton className="h-24 w-full rounded-2xl" />
+        ) : subscription ? (
+          <div className="rounded-2xl bg-foreground p-5 text-background">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium uppercase tracking-wider text-background/60">Plan actuel</span>
+              <Badge className="border-0 bg-background/15 text-background hover:bg-background/15">
+                {STATUS_LABELS[subscription.status] ?? subscription.status}
+              </Badge>
+            </div>
+            <p className="mt-2 text-2xl font-bold">
+              {PLAN_LABELS[subscription.plan] ?? subscription.plan}
+            </p>
+            <p className="mt-1 text-xs text-background/60">
+              {subscription.cancelAtPeriodEnd
+                ? `Annulé le ${formatDate(subscription.currentPeriodEnd)}`
+                : `Renouvellement le ${formatDate(subscription.currentPeriodEnd)}`}
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">Aucun abonnement actif.</p>
+        )}
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handlePortal}
+          disabled={portalMutation.isPending}
+        >
+          <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+          Gérer mon abonnement
+        </Button>
+      </Section>
     </div>
   );
 }
