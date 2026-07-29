@@ -340,6 +340,22 @@ export interface paths {
         patch: operations["PromotionController_publishPromotion"];
         trace?: never;
     };
+    "/dashboard/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DashboardController_getStats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -447,9 +463,161 @@ export interface components {
             amount: number;
             reason?: string;
         };
+        User: {
+            id: string;
+            name: string;
+            email: string;
+            /** @default false */
+            emailVerified: boolean;
+            image?: string;
+            role?: string;
+            banned?: boolean;
+            banReason?: string;
+            /** Format: date-time */
+            banExpires?: string;
+            /**
+             * Format: date-time
+             * @default 2026-07-29T15:50:58.317Z
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @default 2026-07-29T15:50:58.317Z
+             */
+            updatedAt: string;
+            /** @default [] */
+            sessions: Record<string, never>;
+            /** @default [] */
+            accounts: Record<string, never>;
+        };
+        Person: {
+            user: components["schemas"]["AppUser"];
+            firstName: string;
+            lastName?: string;
+            /** Format: date-time */
+            dateOfBirth?: string;
+            /** @enum {string} */
+            gender?: "male" | "female";
+            city?: string;
+            country?: string;
+            /**
+             * Format: date-time
+             * @default 2026-07-29T15:50:58.318Z
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @default 2026-07-29T15:50:58.318Z
+             */
+            updatedAt: string;
+        };
+        AppUser: {
+            authUser: components["schemas"]["User"];
+            person?: components["schemas"]["Person"];
+            /**
+             * @default fr
+             * @enum {string}
+             */
+            language: "fr" | "en" | "es";
+            /** @default A2AB000C */
+            linkCode: string;
+            /** @default true */
+            isActive: boolean;
+            isRestaurantOwner: boolean;
+            stripeCustomerId?: string;
+            /**
+             * Format: date-time
+             * @default 2026-07-29T15:50:58.316Z
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @default 2026-07-29T15:50:58.316Z
+             */
+            updatedAt: string;
+        };
+        Media: {
+            /** @default 20c431bc-78b3-44cc-8adf-64176123a2db */
+            id: string;
+            key: string;
+            ownerId: string;
+            mimeType?: string;
+            size?: number;
+            /**
+             * @default pending
+             * @enum {string}
+             */
+            status: "pending" | "confirmed";
+            /**
+             * Format: date-time
+             * @default 2026-07-29T15:50:58.320Z
+             */
+            createdAt: string;
+        };
+        Restaurant: {
+            /** @default a383167b-f2f1-4a1c-b969-2d055fab8e11 */
+            id: string;
+            user: components["schemas"]["AppUser"];
+            name: string;
+            latitude?: number;
+            longitude?: number;
+            country?: string;
+            city?: string;
+            formattedAddress?: string;
+            placeId?: string;
+            googleMyBusinessLink?: string;
+            /** @default [] */
+            mediaIds: string[];
+            medias?: components["schemas"]["Media"][];
+            /** @default 0 */
+            averageRating: number;
+            /** @default 0 */
+            reviewCount: number;
+            /** @default true */
+            isActive: boolean;
+            cloudwaitressId?: string;
+            cloudwaitressUrl?: string;
+            cloudwaitressWebhookAuthSecret?: string;
+            /**
+             * Format: date-time
+             * @default 2026-07-29T15:50:58.319Z
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @default 2026-07-29T15:50:58.319Z
+             */
+            updatedAt: string;
+        };
+        Customer: {
+            /** @default f753bc19-1db6-4ee2-ab50-07327d28b0d9 */
+            id: string;
+            user: components["schemas"]["AppUser"];
+            restaurant: components["schemas"]["Restaurant"];
+            /** @default 0 */
+            points: number;
+            /** @default 0 */
+            totalPointsGained: number;
+            /** @default false */
+            canSubmitRating: boolean;
+            /** Format: date-time */
+            lastVisitDate?: string;
+            /**
+             * Format: date-time
+             * @default 2026-07-29T15:50:58.316Z
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @default 2026-07-29T15:50:58.316Z
+             */
+            updatedAt: string;
+        };
         PointsTransactionDto: {
             id: string;
             amount: number;
+            /** @enum {string} */
+            type: "gain" | "loss";
             reason?: string;
             /** Format: date-time */
             createdAt: string;
@@ -523,6 +691,48 @@ export interface components {
             /** Format: date-time */
             expiresAt?: string;
             customerIds?: string[];
+        };
+        DashboardSeriesPointDto: {
+            date: string;
+            newCustomers: number;
+            reactivatedCustomers: number;
+            pointsAttributed: number;
+            pointsRedeemed: number;
+            rewardsRedeemed: number;
+            promotionsUsed: number;
+            promotionsUsedInactive: number;
+        };
+        DashboardTotalsDto: {
+            newCustomers: number;
+            reactivatedCustomers: number;
+            pointsAttributed: number;
+            pointsRedeemed: number;
+            rewardsRedeemed: number;
+            promotionsUsed: number;
+            promotionsUsedInactive: number;
+        };
+        DashboardDeltasDto: {
+            newCustomers: number;
+            reactivatedCustomers: number;
+            pointsAttributed: number;
+            pointsRedeemed: number;
+            rewardsRedeemed: number;
+            promotionsUsed: number;
+            promotionsUsedInactive: number;
+        };
+        DashboardLegendEntryDto: {
+            date: string;
+            dayNumber: number;
+            dayLabelShort: string;
+            dayLabelLong: string;
+        };
+        DashboardStatsDto: {
+            /** @enum {string} */
+            period: "7d" | "30d" | "90d";
+            series: components["schemas"]["DashboardSeriesPointDto"][];
+            totals: components["schemas"]["DashboardTotalsDto"];
+            deltas: components["schemas"]["DashboardDeltasDto"];
+            legend: components["schemas"]["DashboardLegendEntryDto"][];
         };
     };
     responses: never;
@@ -765,7 +975,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["Customer"];
                 };
             };
         };
@@ -1047,6 +1257,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PromotionDto"];
+                };
+            };
+        };
+    };
+    DashboardController_getStats: {
+        parameters: {
+            query?: {
+                period?: "7d" | "30d" | "90d";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardStatsDto"];
                 };
             };
         };
