@@ -23,9 +23,9 @@ const PERIODS: { value: Period; label: string }[] = [
 
 // ─── Data ────────────────────────────────────────────────────────────────────
 
-const CUSTOMERS_7D  = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"].map((d,i)=>({ d, nouveaux:[2,1,3,2,4,1,1][i], total:180+[0,1,4,6,10,11,12][i] }));
-const CUSTOMERS_30D = Array.from({length:30},(_,i)=>({ d:`J${i+1}`, nouveaux:((i*7+3)%6)+1, total:155+Math.round(i*1.3) }));
-const CUSTOMERS_90D = Array.from({length:12},(_,i)=>({ d:`S${i+1}`, nouveaux:((i*11+5)%17)+5, total:120+i*7 }));
+const CUSTOMERS_7D  = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"].map((d,i)=>({ d, nouveaux:[2,1,3,2,4,1,1][i], reactives:[1,0,2,1,1,0,1][i] }));
+const CUSTOMERS_30D = Array.from({length:30},(_,i)=>({ d:`J${i+1}`, nouveaux:((i*7+3)%6)+1, reactives:(i*5+2)%4 }));
+const CUSTOMERS_90D = Array.from({length:12},(_,i)=>({ d:`S${i+1}`, nouveaux:((i*11+5)%17)+5, reactives:3+((i*9+4)%10) }));
 
 const POINTS_7D  = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"].map((d,i)=>({ d, attribues:[420,380,610,540,720,490,680][i], echanges:[80,60,120,90,150,100,130][i] }));
 const POINTS_30D = Array.from({length:30},(_,i)=>({ d:`J${i+1}`, attribues:300+((i*97+41)%450), echanges:40+((i*53+17)%120) }));
@@ -57,8 +57,8 @@ const C1 = "#3a64c4"; // bleu
 const C2 = "#d8a01f"; // ambre
 
 const cfgCustomers: ChartConfig = {
-  nouveaux: { label:"Nouveaux clients", color:C1 },
-  total:    { label:"Total clients",    color:C2 },
+  nouveaux:  { label:"Nouveaux clients",  color:C1 },
+  reactives: { label:"Clients réactivés", color:C2 },
 };
 const cfgPoints: ChartConfig = {
   attribues: { label:"Points attribués", color:C1 },
@@ -141,7 +141,8 @@ export default function HomePage() {
   const [period, setPeriod] = useState<Period>("30d");
   const d = DATASETS[period];
 
-  const kpiC  = total(d.customers, "nouveaux");
+  const kpiC     = total(d.customers, "nouveaux");
+  const kpiReact = total(d.customers, "reactives");
   const kpiP  = total(d.points,    "attribues");
   const kpiR  = total(d.rewards,   "cadeaux");
   const kpiPr = total(d.promos,    "tous");
@@ -174,7 +175,7 @@ export default function HomePage() {
         <Card>
           <CardHeader>
             <CardTitle>Nouveaux clients</CardTitle>
-            <CardDescription>Inscriptions sur la période · total cumulé</CardDescription>
+            <CardDescription>Nouvelles inscriptions · clients repassés actifs</CardDescription>
           </CardHeader>
           <CardContent>
             <ChartContainer config={cfgCustomers} className="h-56 w-full">
@@ -185,23 +186,25 @@ export default function HomePage() {
                     <stop offset="95%" stopColor="var(--color-nouveaux)" stopOpacity={0.05}/>
                   </linearGradient>
                   <linearGradient id="gC2" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%"  stopColor="var(--color-total)" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="var(--color-total)" stopOpacity={0}/>
+                    <stop offset="5%"  stopColor="var(--color-reactives)" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="var(--color-reactives)" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid vertical={false}/>
                 <XAxis dataKey="d" tickLine={false} axisLine={false} tickMargin={8} tick={{fontSize:11}}/>
-                <YAxis tickLine={false} axisLine={false} tickMargin={8} tick={{fontSize:11}} width={30}/>
+                <YAxis tickLine={false} axisLine={false} tickMargin={8} tick={{fontSize:11}} width={30} allowDecimals={false}/>
                 <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot"/>}/>
-                <Area dataKey="total"    type="natural" stroke="var(--color-total)"    fill="url(#gC2)" strokeWidth={1.5} dot={false}/>
-                <Area dataKey="nouveaux" type="natural" stroke="var(--color-nouveaux)" fill="url(#gC1)" strokeWidth={2}   dot={false}/>
+                <Area dataKey="reactives" type="natural" stroke="var(--color-reactives)" fill="url(#gC2)" strokeWidth={1.5} dot={false}/>
+                <Area dataKey="nouveaux"  type="natural" stroke="var(--color-nouveaux)"  fill="url(#gC1)" strokeWidth={2}   dot={false}/>
                 <ChartLegend content={<ChartLegendContent/>}/>
               </AreaChart>
             </ChartContainer>
           </CardContent>
           <CardFooter className="flex-col items-start gap-1 text-sm">
             <Delta value={d.delta.c}/>
-            <span className="text-muted-foreground">{fmt(kpiC)} nouveaux clients enregistrés</span>
+            <span className="text-muted-foreground">
+              {fmt(kpiC)} nouveaux clients · {fmt(kpiReact)} réactivés
+            </span>
           </CardFooter>
         </Card>
 
